@@ -1,6 +1,6 @@
 # cellular-automata-posters
 
-Simple Python script that **generates cellular automata posters as PDF** files. Heavily inspired by [this Reddit post](https://www.reddit.com/r/cellular_automata/comments/6bg60e/2d_cellular_automata_posters/) -- **all credit goes to /u/collatz_conjecture**, while any criticism (e.g. for taking their idea and running with it) is to be directed at me.
+Simple Python script that **generates cellular automata posters as PDF** files. Heavily inspired by [this Reddit post](https://www.reddit.com/r/cellular_automata/comments/6bg60e/2d_cellular_automata_posters/) – **all credit goes to /u/collatz_conjecture**, while any criticism (e.g. for taking their concept and running with it) is to be directed at [me](https://github.com/doersino).
 
 
 ## Examples
@@ -12,9 +12,9 @@ You can find the associated PDF files in the `examples/` subdirectory.
 
 ## Setup & Usage
 
-The script has been tested with Python 3 and uses the [`cairocffi` package](https://pypi.python.org/pypi/cairocffi) to draw vector shapes to PDF. This package, in turn, depends on CFFI, Cairo and other system-dependent libraries. **Take a look at the [`cairocffi` documentation](http://cairocffi.readthedocs.io/en/latest/overview.html#installing-cffi)** to get started.
+The script has been tested with Python 3 and uses the [`cairocffi` package](https://pypi.python.org/pypi/cairocffi) to draw vector shapes to PDF. That package, in turn, depends on CFFI, Cairo and other system-dependent libraries. **Take a look at the [`cairocffi` documentation](http://cairocffi.readthedocs.io/en/latest/overview.html#installing-cffi)** to get started.
 
-If you're on macOS, you can run the following commands to set things up -- that's what worked for me, anyway:
+If you're on macOS, you can run the following commands to set things up – that's what worked for me, anyway:
 
 ```bash
 $ brew install python3, pkg-config, libffi, cairo
@@ -22,18 +22,18 @@ $ PKG_CONFIG_PATH=/usr/local/opt/libffi/lib/pkgconfig pip3 install cffi
 $ pip3 install cairocffi
 ```
 
-Now adjust the settings in `ca.py` to taste (they're explained inline, you're encouraged you to play around with them). Then run the script using
+Now **adjust the settings in `cap.py` to taste** (they're explained inline, you're encouraged to play around with them). Then run the script using
 
 ```
-$ python3 ca.py
+$ python3 cap.py
 ```
 
-after which you'll find the generated PDF file in your `$(pwd)`.
+after which you'll find the generated PDF file in your working directory.
 
 
 ## Notes
 
-* You can vary the page aspect ratio to your heart's content to generate horizontal or ultra-tall posters -- the label should still look fine either way.
+* You can vary the page aspect ratio to your heart's content to generate horizontal or ultra-tall posters – the label should still look fine either way.
 * Possible improvements or additions are being kept track of in `TODO.md`. I might not get to all of them, but if you implement anything, feel free to send a pull request.
 * Even though the script is licensed under the MIT license which permits commercial use, it'd be cool if you refrain from selling copies of the posters for profit.
 * Want to find out more in-depth info about this kind of cellular automaton? Read [Stephen Wolfram's paper](https://lainchan.jp/tech/src/1497017334945.pdf).
