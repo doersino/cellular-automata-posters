@@ -35,10 +35,10 @@ after which you'll find the generated PDF file in your working directory.
 
 ## Notes
 
-* You can vary the page aspect ratio to your heart's content to generate horizontal or ultra-tall posters – the label should still look fine either way.
+* You can **vary the page aspect ratio** to your heart's content to generate horizontal or ultra-tall posters – the label should still look fine either way.
 * There are several ways of dealing with the edges of the grid. One of the more common approaches (especially for 2D automata) seems to be to let the grid warp around the edges, i.e. the right neighbor of the right-most cell is the left-most cell and vice versa. That's what I went with for now.
-* Possible improvements or additions are being kept track of in `TODO.md`. I might not get to all of them, but if you implement anything, feel free to send a pull request.
-* Even though the script is licensed under the MIT license which permits commercial use, it'd be cool if you refrain from selling copies of the posters for profit.
+* Possible **improvements or additions** are being kept track of in `TODO.md`. I might not get to all of them, but if you implement anything, feel free to send a pull request.
+* Even though the script is licensed under the MIT license which permits commercial use, **it'd be cool if you refrain from selling copies of the posters for profit**.
 * Want to find out more in-depth info about this kind of cellular automaton? Read [Stephen Wolfram's paper](https://lainchan.jp/tech/src/1497017334945.pdf).
 * Cellular automata [occur in nature](https://www.reddit.com/r/cellular_automata/comments/2ivi13/cellular_automata_shells/), which is kinda cool.
 * I recommend using the excellent [`pdf2svg` utility](http://www.cityinthesky.co.uk/opensource/pdf2svg/) if you for some reason prefer the results in SVG. File sizes can get quite large, however: around 10-40 MB for each of the examples shown above.
