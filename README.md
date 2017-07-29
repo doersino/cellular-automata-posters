@@ -19,7 +19,7 @@ The script has been tested with Python 3 and uses the [`cairocffi` package](http
 If you're on macOS, you can run the following commands to set things up – that's what worked for me, anyway:
 
 ```bash
-$ brew install python3, pkg-config, libffi, cairo
+$ brew install python3 pkg-config libffi cairo
 $ PKG_CONFIG_PATH=/usr/local/opt/libffi/lib/pkgconfig pip3 install cffi
 $ pip3 install cairocffi
 ```
