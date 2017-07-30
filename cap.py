@@ -29,15 +29,20 @@ initialCondition = 'middle'  # 'middle' → '...0001000...'
                              # length does not match the width specified below,
                              # it will be truncated or padded with zeros).
 
-offset = 0  # From which generation on should the states be shown? Can also
-            # be a (positive!) decimal number (e.g. 10.5) for minute
-            # adjustments.
-
 width  = 280     # ⎤ Dimensions (width in cells, height in generations) of grid.
 height = 'auto'  # ⎦ Either one (but not both) can be set to 'auto' to fill the
                  #   page. Tested up to 1000×1416, which takes about 30s to
                  #   generate (but be aware that displaying 1.5M shapes tends to
                  #   choke PDF viewers).
+
+offset = 0  # From which generation on should the states be shown? Can also
+            # be a decimal number (e.g. 10.5) or negative to adjust the vertical
+            # offset.
+
+angle = 0  # Rotation angle in degrees (tested between -45° and 45°). To fill
+           # the resulting blank spots in the corners, the dimensions of the
+           # grid are increased to keep the displayed cell size constant (as
+           # opposed to scaling up the grid).
 
 colorScheme = 'blue'  # 'yellow', 'green', 'pink', 'salmon', 'red', 'blue',
                       # 'lime', 'orange', 'violet', 'gray' or a tuple of the
@@ -75,7 +80,7 @@ debug = False   # Will output some rather verbose status info such as the initia
 ######################
 
 # offset: split into decimal and integer part
-generationOffset = int(offset)
+generationOffset = max(0, int(offset))
 displayOffset    = offset - generationOffset
 
 # dimensions
@@ -85,6 +90,19 @@ if height == 'auto':
     height = math.ceil((pageHeight / pageWidth) * width)
     if displayOffset > 0:
         height += 1
+
+# rotation
+angle = math.radians(angle)
+requiredPageWidth  = math.sin(abs(angle)) * pageHeight + math.cos(abs(angle)) * pageWidth
+requiredPageHeight = math.sin(abs(angle)) * pageWidth  + math.cos(abs(angle)) * pageHeight
+
+translation = ((requiredPageWidth - pageWidth) / 2,
+               (requiredPageHeight - pageHeight) / 2)
+
+originalWidth = width
+
+width  = math.ceil(width * requiredPageWidth / pageWidth)
+height = math.ceil(height * requiredPageHeight / pageHeight)
 
 # color scheme
 if colorScheme == 'yellow':
@@ -183,9 +201,9 @@ for y in range(0, height + generationOffset):
 
 grid = grid[generationOffset:]  # discard any unwanted generations
 
-cellSize = pageWidth / width
-xPositions = [x * cellSize for x in range(0,width)]
-yPositions = [(y - displayOffset) * cellSize for y in range(0,height+1)]
+cellSize = pageWidth / originalWidth
+xPositions = [x * cellSize - translation[0] for x in range(0,width)]
+yPositions = [(y - displayOffset) * cellSize - translation[1] for y in range(0,height+1)]
 
 log('Drawing to "{}"...'.format(filename))
 
@@ -199,6 +217,9 @@ with context:
 
 # draw cells and grid
 context.set_line_width(cellSize / 16)
+context.translate(pageWidth / 2, pageHeight / 2)
+context.rotate(angle)
+context.translate(-pageWidth / 2, -pageHeight / 2)
 for y, row in enumerate(grid):
     log('Drawing row {}/{}...'.format(y, height))
     for x, cell in enumerate(row):
@@ -212,6 +233,9 @@ for y, row in enumerate(grid):
             context.set_source_rgb(gridColor[0], gridColor[1], gridColor[2])
             context.rectangle(xP, yP, cellSize, cellSize)
             context.stroke()
+context.translate(pageWidth / 2, pageHeight / 2)
+context.rotate(-angle)
+context.translate(-pageWidth / 2, -pageHeight / 2)
 
 if showLabel:
     log('Drawing label...')
