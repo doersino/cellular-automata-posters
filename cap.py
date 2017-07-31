@@ -19,7 +19,10 @@ import cairocffi as cairo
 # OPTIONS #
 ###########
 
-rule = 30  # Between 0 and 255, see http://mathworld.wolfram.com/ElementaryCellularAutomaton.html
+rule = 30  # See http://mathworld.wolfram.com/ElementaryCellularAutomaton.html
+           # but note that "higher" rules beyond 255 (e.g. rule 31415926, see
+           # http://www.wolframalpha.com/input/?i=rule+31415926) are also
+           # supported (for legibility reasons sans rule icons on the label).
 
 initialCondition = 'middle'  # 'middle' → '...0001000...'
                              # 'left'   → '1000...'
@@ -62,7 +65,7 @@ gridMode = 'dead'  # 'living' → Grid lines are same color as living cells.
                    #            faster, especially if few living cells exist.
                    #            Implied when cellShape is set to 'circle'.
 
-showLabel = True  # Whether to show the label.
+showLabel = True  # Whether to show the label containing rule number & icons.
 
 font = 'Helvetica'  # Any font installed on your system. Helvetica, if you've
                     # got it, looks neat. For other fonts, you might need to dig
@@ -110,33 +113,24 @@ width  = math.ceil(width * requiredPageWidth / pageWidth)
 height = math.ceil(height * requiredPageHeight / pageHeight)
 
 # color scheme
-if colorScheme == 'yellow':
-    colors = ('#ffe183', '#ffa24b')
-elif colorScheme == 'green':
-    colors = ('#bddba6', '#83b35e')
-elif colorScheme == 'pink':
-    colors = ('#000000', '#b84c8c')
-elif colorScheme == 'salmon':
-    colors = ('#ffb1b0', '#c24848')
-elif colorScheme == 'red':
-    colors = ('#fc5e5d', '#8e0033')
-elif colorScheme == 'blue':
-    colors = ('#4b669b', '#c0d6ff')
-elif colorScheme == 'lime':
-    colors = ('#cbe638', '#98ad20')
-elif colorScheme == 'orange':
-    colors = ('#ffe5db', '#f2936d')
-elif colorScheme == 'violet':
-    colors = ('#e9c3fe', '#6f5b7e')
-elif colorScheme == 'gray':
-    colors = ('#dddddd', '#333333')
+colorSchemes = {'yellow': ('#ffe183', '#ffa24b'),
+                'green':  ('#bddba6', '#83b35e'),
+                'pink':   ('#000000', '#b84c8c'),
+                'salmon': ('#ffb1b0', '#c24848'),
+                'red':    ('#fc5e5d', '#8e0033'),
+                'blue':   ('#4b669b', '#c0d6ff'),
+                'lime':   ('#cbe638', '#98ad20'),
+                'orange': ('#ffe5db', '#f2936d'),
+                'violet': ('#e9c3fe', '#6f5b7e'),
+                'gray':   ('#dddddd', '#333333')}
+
+if isinstance(colorScheme, str):
+    colors = colorSchemes[colorScheme]
 else:
     colors = colorScheme
 
 torgb = lambda hex: tuple(int((hex.lstrip('#'))[i:i+2], 16)/255 for i in (0, 2, 4))
-
-livingColor = torgb(colors[0])
-deadColor  = torgb(colors[1])
+livingColor, deadColor = map(torgb, colors)
 
 # grid
 if gridMode == 'living':
@@ -157,18 +151,15 @@ log = lambda s: debug and print(s)
 # CELLULAR AUTOMATON #
 ######################
 
-# set up ca rules based on rule number
-ruleBinary = format(rule, 'b').zfill(8)
-transistions = {
-    '111': ruleBinary[0],
-    '110': ruleBinary[1],
-    '101': ruleBinary[2],
-    '100': ruleBinary[3],
-    '011': ruleBinary[4],
-    '010': ruleBinary[5],
-    '001': ruleBinary[6],
-    '000': ruleBinary[7]
-}
+# compute width (i.e. number of cells) of current state to consider
+currentStateWidth = max(3, math.ceil(math.log2(math.log2(rule+1))))
+
+# convert rule to binary and pad to required length
+ruleBinary = format(rule, 'b').zfill(int(math.pow(2,currentStateWidth)))
+
+# compute transistions, i.e. set up mapping from each possible current
+# configuration to the rule-defined next state
+transistions = {bin(currentState)[2:].zfill(currentStateWidth): resultingState for currentState, resultingState in enumerate(reversed(ruleBinary))}
 
 # generate initial state
 if initialCondition == 'middle':
@@ -191,11 +182,11 @@ log('Running rule {} cellular automaton...'.format(rule))
 for y in range(0, height + generationOffset):
     currentState = grid[y]
     log(currentState)
+    currentStatePadded = currentState[-math.floor(currentStateWidth/2):width] + currentState + currentState[0:currentStateWidth-math.floor(currentStateWidth/2)-1]
 
     nextState = ''
     for x in range(0, width):
-        currentStatePadded = currentState[-1] + currentState + currentState[0]
-        pattern = currentStatePadded[x:x+3]
+        pattern = currentStatePadded[x:x+currentStateWidth]
         nextState += transistions[pattern]
     grid.append(nextState)
 
@@ -257,14 +248,14 @@ if showLabel:
 
     # draw drop shadows, top one slightly smaller than bottom one to simulate soft light from just above
     gradient = cairo.LinearGradient(0, 0.9*pageHeight-0.14*pageSize, 0, 0.9*pageHeight-0.14*pageSize-0.004*pageSize)
-    gradient.add_color_stop_rgba(0, 0, 0, 0, 0.1)
+    gradient.add_color_stop_rgba(0, 0, 0, 0, 0.13)
     gradient.add_color_stop_rgba(1, 0, 0, 0, 0.0)
     context.rectangle(0, 0.9*pageHeight-0.14*pageSize-0.004*pageSize, pageWidth, 0.004*pageSize)
     context.set_source(gradient)
     context.fill()
 
     gradient = cairo.LinearGradient(0, 0.9*pageHeight, 0, 0.9*pageHeight+0.006*pageSize)
-    gradient.add_color_stop_rgba(0, 0, 0, 0, 0.20)
+    gradient.add_color_stop_rgba(0, 0, 0, 0, 0.21)
     gradient.add_color_stop_rgba(1, 0, 0, 0, 0.0)
     context.rectangle(0, 0.9*pageHeight, pageWidth, 0.006*pageSize)
     context.set_source(gradient)
@@ -277,28 +268,30 @@ if showLabel:
     context.set_source_rgb(0, 0, 0)
     context.show_text(u'RULE {}'.format(rule))
 
-    # draw rules explainer
-    xOffset = pageWidth-0.115*pageSize
-    yOffset = 0.9*pageHeight-0.084*pageSize
-    cellSize = pageSize/78
+    # draw rule icons (only for simple rules, would not be not legible for
+    # "higher" rules)
+    if currentStateWidth == 3:
+        xOffset = pageWidth-0.115*pageSize
+        yOffset = 0.9*pageHeight-0.084*pageSize
+        cellSize = pageSize/78
 
-    context.set_line_width(cellSize / 10)
-    context.set_source_rgb(0, 0, 0)
-    for neighbors in sorted(transistions.keys()):
-        for cell in neighbors[::-1]:
-            if cell == '1':
+        context.set_line_width(cellSize / 10)
+        context.set_source_rgb(0, 0, 0)
+        for neighbors in sorted(transistions.keys()):
+            for cell in neighbors[::-1]:
+                if cell == '1':
+                    context.rectangle(xOffset, yOffset, cellSize, cellSize)
+                    context.fill()
                 context.rectangle(xOffset, yOffset, cellSize, cellSize)
+                context.stroke()
+                xOffset -= cellSize * 1.25
+            #print(transistions[thing])  # 1.1 below and -2.2 in x
+            if transistions[neighbors] == '1':
+                context.rectangle(xOffset+cellSize*2.5, yOffset+cellSize*1.25, cellSize, cellSize)
                 context.fill()
-            context.rectangle(xOffset, yOffset, cellSize, cellSize)
-            context.stroke()
-            xOffset -= cellSize * 1.25
-        #print(transistions[thing])  # 1.1 below and -2.2 in x
-        if transistions[neighbors] == '1':
             context.rectangle(xOffset+cellSize*2.5, yOffset+cellSize*1.25, cellSize, cellSize)
-            context.fill()
-        context.rectangle(xOffset+cellSize*2.5, yOffset+cellSize*1.25, cellSize, cellSize)
-        context.stroke()
+            context.stroke()
 
-        xOffset -= cellSize * 0.7
+            xOffset -= cellSize * 0.7
 
 log('Almost there, writing to disk...')
