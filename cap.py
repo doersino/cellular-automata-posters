@@ -29,6 +29,10 @@ initialCondition = 'middle'  # 'middle' → '...0001000...'
                              # length does not match the width specified below,
                              # it will be truncated or padded with zeros).
 
+cellShape = 'square'  # 'square'  → □
+                      # 'circle'  → ◯ (Note that this hides the grid, see
+                      #                gridMode option below.)
+
 width  = 280     # ⎤ Dimensions (width in cells, height in generations) of grid.
 height = 'auto'  # ⎦ Either one (but not both) can be set to 'auto' to fill the
                  #   page. Tested up to 1000×1416, which takes about 30s to
@@ -56,6 +60,7 @@ gridMode = 'dead'  # 'living' → Grid lines are same color as living cells.
                    #            0 and 1 are possible as well).
                    # None     → Hide grid. Makes the script run significantly
                    #            faster, especially if few living cells exist.
+                   #            Implied when cellShape is set to 'circle'.
 
 showLabel = True  # Whether to show the label.
 
@@ -227,9 +232,12 @@ for y, row in enumerate(grid):
         yP = yPositions[y]
         if cell == '1':
             context.set_source_rgb(livingColor[0], livingColor[1], livingColor[2])
-            context.rectangle(xP, yP, cellSize, cellSize)
+            if cellShape == 'square':
+                context.rectangle(xP, yP, cellSize, cellSize)
+            else:
+                context.arc(xP + cellSize / 2, yP + cellSize / 2, cellSize / 2, 0, 2*math.pi)
             context.fill()
-        if gridColor is not None:
+        if gridColor is not None and cellShape == 'square':
             context.set_source_rgb(gridColor[0], gridColor[1], gridColor[2])
             context.rectangle(xP, yP, cellSize, cellSize)
             context.stroke()
