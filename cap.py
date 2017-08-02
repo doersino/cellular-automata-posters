@@ -42,9 +42,10 @@ height = 'auto'  # ⎦ Either one (but not both) can be set to 'auto' to fill th
                  #   generate (but be aware that displaying 1.5M shapes tends to
                  #   choke PDF viewers).
 
-offset = 0  # From which generation on should the states be shown? Can also
-            # be a decimal number (e.g. 10.5) or negative to adjust the vertical
-            # offset.
+offset = 0  # From which generation on should the states be shown? Handy for
+            # rules that take a few generations to converge to a nice repeating
+            # pattern. Can also be a decimal number (e.g. 10.5) or negative to
+            # adjust the vertical display offset.
 
 angle = 0  # Rotation angle in degrees (tested between -45° and 45°). To fill
            # the resulting blank spots in the corners, the dimensions of the
