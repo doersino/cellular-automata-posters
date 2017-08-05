@@ -54,10 +54,10 @@ angle = 0  # Rotation angle in degrees (tested between -45° and 45°). To fill
            # opposed to scaling up the grid).
 
 colorScheme = 'blue'  # 'yellow', 'green', 'pink', 'salmon', 'red', 'blue',
-                      # 'lime', 'orange', 'violet', 'gray' or a tuple of the
-                      # form "('#ffe183', '#ffa24b')", with the first element
-                      # being the living cell color and the second element being
-                      # the dead cell color.
+                      # 'lime', 'orange', 'darkblue', 'violet', 'gray' or a tuple
+                      # of the form "('#ffe183', '#ffa24b')", with the first
+                      # element being the living cell color and the second
+                      # element being the dead cell color.
 
 gridMode = 'dead'  # 'living' → Grid lines are same color as living cells.
                    # 'dead'   → Same for dead cells.
@@ -97,16 +97,17 @@ debug = False   # Will output some rather verbose status info such as the initia
 
 log = lambda s: debug and print(s)
 
-colorSchemes = {'yellow': ('#ffe183', '#ffa24b'),
-                'green':  ('#bddba6', '#83b35e'),
-                'pink':   ('#000000', '#b84c8c'),
-                'salmon': ('#ffb1b0', '#c24848'),
-                'red':    ('#fc5e5d', '#8e0033'),
-                'blue':   ('#4b669b', '#c0d6ff'),
-                'lime':   ('#cbe638', '#98ad20'),
-                'orange': ('#ffe5db', '#f2936d'),
-                'violet': ('#e9c3fe', '#6f5b7e'),
-                'gray':   ('#dddddd', '#333333')}
+colorSchemes = {'yellow':   ('#ffe183', '#ffa24b'),
+                'green':    ('#bddba6', '#83b35e'),
+                'pink':     ('#000000', '#b84c8c'),
+                'salmon':   ('#ffb1b0', '#c24848'),
+                'red':      ('#fc5e5d', '#8e0033'),
+                'blue':     ('#4b669b', '#c0d6ff'),
+                'lime':     ('#cbe638', '#98ad20'),
+                'orange':   ('#ffe5db', '#f2936d'),
+                'darkblue': ('#1baaef', '#0d6ca5'),
+                'violet':   ('#e9c3fe', '#6f5b7e'),
+                'gray':     ('#dddddd', '#333333')}
 
 # option overrides
 if 'CAP_RULE' in os.environ:
