@@ -14,7 +14,7 @@ You can find the associated PDF files in the `examples/` subdirectory.
 
 ## Setup & Usage
 
-The script has been tested with Python 3 and uses the [`cairocffi` package](https://pypi.python.org/pypi/cairocffi) to draw vector shapes to PDF. That package, in turn, depends on CFFI, Cairo and other system-dependent libraries. **Take a look at the [`cairocffi` documentation](http://cairocffi.readthedocs.io/en/latest/overview.html#installing-cffi)** to get started.
+The script has been tested with Python 3 and uses the [`cairocffi` package](https://pypi.python.org/pypi/cairocffi) to draw vector shapes to PDF. That package, in turn, depends on CFFI, Cairo and other system-dependent libraries. **Take a look at the [`cairocffi` documentation](http://cairocffi.readthedocs.io/en/latest/overview.html#installing-cffi)** to get started. Further, the [`wolframalpha` package](https://pypi.python.org/pypi/wolframalpha) is used to display "fun facts" about the rules – the script contains a comment explaining how to get the Wolfram|Alpha AppID required to enable this feature.
 
 If you're on macOS, you can run the following commands to set things up – that's what worked for me, anyway:
 
@@ -22,9 +22,10 @@ If you're on macOS, you can run the following commands to set things up – that
 $ brew install python3 pkg-config libffi cairo
 $ PKG_CONFIG_PATH=/usr/local/opt/libffi/lib/pkgconfig pip3 install cffi
 $ pip3 install cairocffi
+$ pip3 install wolframalpha
 ```
 
-Now **adjust the settings in `cap.py` to taste** (they're explained inline, you're encouraged to play around with them). Then run the script using
+Now **adjust the settings in `cap.py` to taste** (they're explained inline, I encourage you to play around with them). Then run the script using
 
 ```
 $ python3 cap.py
@@ -36,6 +37,7 @@ after which you'll find the generated PDF file in your working directory.
 ## Notes
 
 * You can **vary the page aspect ratio** to your heart's content to generate horizontal or ultra-tall posters – the label should still look fine either way.
+* If adjusting the settings in the source file feels icky to you, you can use environment variables: Calling the script as `CAP_RULE=57 CAP_WIDTH=400 CAP_ANGLE=5.5 CAP_COLORSCHEME="('#478c49', '#d0c043')" CAP_GRIDMODE='None' CAP_FONT='PragmataPro' CAP_PAGEWIDTH=2000 CAP_DEBUG='True' CAP_FILENAME='optionOverrides.pdf' python3 cap.py` will use the values from the environment variables with all other options set to their defaults. The end result – if you can get a hold of the [PragmataPro font](https://www.fsd.it/shop/fonts/pragmatapro/) – will look like [this](examples/optionOverrides.pdf).
 * There are several ways of dealing with the edges of the grid. One of the more common approaches (especially for 2D automata) seems to be to let the grid warp around the edges, i.e. the right neighbor of the right-most cell is the left-most cell and vice versa. That's what I went with for now.
 * Possible **improvements or additions** are being kept track of in `TODO.md`. I might not get to all of them, but if you implement anything, feel free to send a pull request.
 * Even though the script is licensed under the MIT license which permits commercial use, **it'd be cool if you refrain from selling copies of the posters for profit**.

@@ -10,6 +10,7 @@
 # all credit goes to them, while any criticism (e.g. for taking their idea and
 # running with it) is to be directed at me: https://github.com/doersino)
 
+import os
 import math
 from random import randint
 import cairocffi as cairo
@@ -72,6 +73,12 @@ font = 'Helvetica'  # Any font installed on your system. Helvetica, if you've
                     # got it, looks neat. For other fonts, you might need to dig
                     # into the code below and adjust the vertical spacing.
 
+wolframAlphaAppID = ''  # A non-empty string enables display of Wolfram|Alpha-
+                        # sourced "fun facts" as part of the label. To get an
+                        # AppID, register for a developer account at
+                        # https://developer.wolframalpha.com/portal/apisignup.html
+                        # and click the "Get an AppID" button.
+
 pageWidth  = 595  # ⎤ Page dimensions in PostScript points (i.e. ¹/₇₂ inch). The
 pageHeight = 842  # ⎦ default values (595, 842) correspond to DIN A4. Unusual
                   #   aspect ratios should work just fine, though. Small values
@@ -87,6 +94,69 @@ debug = False   # Will output some rather verbose status info such as the initia
 ######################
 # OPTIONS PROCESSING #
 ######################
+
+log = lambda s: debug and print(s)
+
+colorSchemes = {'yellow': ('#ffe183', '#ffa24b'),
+                'green':  ('#bddba6', '#83b35e'),
+                'pink':   ('#000000', '#b84c8c'),
+                'salmon': ('#ffb1b0', '#c24848'),
+                'red':    ('#fc5e5d', '#8e0033'),
+                'blue':   ('#4b669b', '#c0d6ff'),
+                'lime':   ('#cbe638', '#98ad20'),
+                'orange': ('#ffe5db', '#f2936d'),
+                'violet': ('#e9c3fe', '#6f5b7e'),
+                'gray':   ('#dddddd', '#333333')}
+
+# option overrides
+if 'CAP_RULE' in os.environ:
+    rule = int(os.environ['CAP_RULE'])
+if 'CAP_INITIALCONDITION' in os.environ:
+    initialCondition = os.environ['CAP_INITIALCONDITION']
+if 'CAP_CELLSHAPE' in os.environ:
+    cellShape = os.environ['CAP_CELLSHAPE']
+if 'CAP_WIDTH' in os.environ:
+    if os.environ['CAP_WIDTH'] == 'auto':
+        width = 'auto'
+    else:
+        width = int(os.environ['CAP_WIDTH'])
+if 'CAP_HEIGHT' in os.environ:
+    if os.environ['CAP_HEIGHT'] == 'auto':
+        height = 'auto'
+    else:
+        height = int(os.environ['CAP_HEIGHT'])
+if 'CAP_OFFSET' in os.environ:
+    offset = float(os.environ['CAP_OFFSET'])
+if 'CAP_ANGLE' in os.environ:
+    angle = float(os.environ['CAP_ANGLE'])
+if 'CAP_COLORSCHEME' in os.environ:
+    if os.environ['CAP_COLORSCHEME'] in colorSchemes.keys():
+        colorScheme = os.environ['CAP_COLORSCHEME']
+    else:
+        colorScheme = eval(os.environ['CAP_COLORSCHEME'])
+if 'CAP_GRIDMODE' in os.environ:
+    if os.environ['CAP_GRIDMODE'] in ['living', 'dead']:
+        gridMode = os.environ['CAP_GRIDMODE']
+    elif os.environ['CAP_GRIDMODE'] == 'None':
+        gridMode = None
+    else:
+        gridMode = float(os.environ['CAP_GRIDMODE'])
+if 'CAP_SHOWLABEL' in os.environ:
+    showLabel = os.environ['CAP_SHOWLABEL'] == 'True'
+if 'CAP_FONT' in os.environ:
+    font = os.environ['CAP_FONT']
+if 'CAP_WOLFRAMALPHAAPPID' in os.environ:
+    wolframAlphaAppID = os.environ['CAP_WOLFRAMALPHAAPPID']
+if 'CAP_PAGEWIDTH' in os.environ:
+    pageWidth = int(os.environ['CAP_PAGEWIDTH'])
+if 'CAP_PAGEHEIGHT' in os.environ:
+    pageHeight = int(os.environ['CAP_PAGEHEIGHT'])
+if 'CAP_FILENAME' in os.environ:
+    filename = os.environ['CAP_FILENAME']
+else:
+    filename = 'rule{}.pdf'.format(rule)
+if 'CAP_DEBUG' in os.environ:
+    debug = os.environ['CAP_DEBUG'] == 'True'
 
 # offset: split into decimal and integer part
 generationOffset = max(0, int(offset))
@@ -109,22 +179,10 @@ translation = ((requiredPageWidth - pageWidth) / 2,
                (requiredPageHeight - pageHeight) / 2)
 
 originalWidth = width
-
 width  = math.ceil(width * requiredPageWidth / pageWidth)
 height = math.ceil(height * requiredPageHeight / pageHeight)
 
-# color scheme
-colorSchemes = {'yellow': ('#ffe183', '#ffa24b'),
-                'green':  ('#bddba6', '#83b35e'),
-                'pink':   ('#000000', '#b84c8c'),
-                'salmon': ('#ffb1b0', '#c24848'),
-                'red':    ('#fc5e5d', '#8e0033'),
-                'blue':   ('#4b669b', '#c0d6ff'),
-                'lime':   ('#cbe638', '#98ad20'),
-                'orange': ('#ffe5db', '#f2936d'),
-                'violet': ('#e9c3fe', '#6f5b7e'),
-                'gray':   ('#dddddd', '#333333')}
-
+# color scheme selection
 if isinstance(colorScheme, str):
     colors = colorSchemes[colorScheme]
 else:
@@ -144,8 +202,45 @@ else:
     gridRatio = float(gridMode)
     gridColor = [gridRatio * lc + (1 - gridRatio) * dc for lc, dc in zip(livingColor, deadColor)]
 
-# debug
-log = lambda s: debug and print(s)
+# fetch and format fun facts
+funFacts = []
+if showLabel and wolframAlphaAppID:
+    import wolframalpha
+
+    log('Fetching fun facts from Wolfram|Alpha...')
+    try:
+        client = wolframalpha.Client(wolframAlphaAppID)
+        res = client.query('rule {}'.format(rule))
+        for pod in res.pods:
+            if pod['@id'] == 'RuleEquivalences':
+                for sub in pod.subpods:
+                    tableRows = sub.plaintext.split('\n')
+                    tableHead = tableRows[0].split(' | ')
+                    tableData = tableRows[1].split(' | ')
+                    tableData = [int(''.join(c for c in r if c.isdigit())) for r in tableData]
+                    ruleEquivalences = dict(zip(tableHead, tableData))
+                    if ruleEquivalences.get('left-right', rule) != rule:
+                            funFacts.append("Rule {} is this rule's mirror image.".format(ruleEquivalences['left-right']))
+                    if ruleEquivalences.get('color', rule) != rule:
+                        funFacts.append("Rule {} is this rule's color-inverted equivalent.".format(ruleEquivalences['color']))
+                    if ruleEquivalences.get('both', rule) != rule:
+                        funFacts.append("Rule {} is this rule's color-inverted mirror image.".format(ruleEquivalences['both']))
+            if pod['@id'] == 'BooleanForm':
+                for sub in pod.subpods:
+                    booleanForm = ' '.join(sub.plaintext.split()).replace('|->', '~>')
+                    funFacts.append("The boolean form of rule {} is {}.".format(rule, booleanForm))
+            if pod['@id'] == 'Properties':
+                for sub in pod.subpods:
+                    funFacts.append(sub.plaintext)
+    except Exception as e:
+        if debug:
+            raise
+        else:
+            print('Skipping fun facts: An exception occurred while trying to fetch them from Wolfram|Alpha. Try again or enable the debugging flag at the bottom of the options and rerun to view the exception.')
+    if len(funFacts) == 1:
+        funFacts.insert(0, 'Fun fact:')
+    elif len(funFacts) > 1:
+        funFacts.insert(0, 'Fun facts:')
 
 
 ######################
@@ -242,16 +337,41 @@ if showLabel:
 
     pageSize = min(pageWidth, pageHeight)  # enables a kind of responsive design
 
+    # format fun facts and compute height of label based on number of lines
+    funFactsLines = []
+    labelHeight = 0.14*pageSize
+    if funFacts:
+        context.select_font_face(font, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+        context.set_font_size(0.015*pageSize)
+        context.set_source_rgb(0, 0, 0)
+        funFacts =  ' '.join(funFacts).split(' ')
+
+        # split long string into lines depending on page width
+        i = 0
+        while funFacts:
+            rest = []
+            lineWidth = context.text_extents(' '.join(funFacts))[2]
+            while lineWidth > pageWidth - 0.2 * pageSize:
+                rest.insert(0, funFacts[-1])
+                funFacts = funFacts[:-1]
+                lineWidth = context.text_extents(' '.join(funFacts))[2]
+            funFactsLines.append(' '.join(funFacts))
+            funFacts = rest
+            i += 1
+        funFactLineHeight = context.text_extents(funFactsLines[0])[3]  # via http://blog.mathieu-leplatre.info/text-extents-with-python-cairo.html
+        labelHeight += i*funFactLineHeight*1.5 + 0.035*pageSize
+
     # draw white box for label
     context.set_source_rgb(1, 1, 1)
-    context.rectangle(0, 0.9*pageHeight-0.14*pageSize, pageWidth, 0.14*pageSize)
+    context.rectangle(0, 0.9*pageHeight-labelHeight, pageWidth, labelHeight)
     context.fill()
 
-    # draw drop shadows, top one slightly smaller than bottom one to simulate soft light from just above
-    gradient = cairo.LinearGradient(0, 0.9*pageHeight-0.14*pageSize, 0, 0.9*pageHeight-0.14*pageSize-0.004*pageSize)
+    # draw drop shadows, top one slightly smaller than bottom one to simulate
+    # soft light from just above
+    gradient = cairo.LinearGradient(0, 0.9*pageHeight-labelHeight, 0, 0.9*pageHeight-labelHeight-0.004*pageSize)
     gradient.add_color_stop_rgba(0, 0, 0, 0, 0.13)
     gradient.add_color_stop_rgba(1, 0, 0, 0, 0.0)
-    context.rectangle(0, 0.9*pageHeight-0.14*pageSize-0.004*pageSize, pageWidth, 0.004*pageSize)
+    context.rectangle(0, 0.9*pageHeight-labelHeight-0.004*pageSize, pageWidth, 0.004*pageSize)
     context.set_source(gradient)
     context.fill()
 
@@ -263,17 +383,26 @@ if showLabel:
     context.fill()
 
     # draw text
-    context.move_to(0.1*pageSize, 0.9*pageHeight-0.0505*pageSize)
+    context.move_to(0.1*pageSize, 0.9*pageHeight-labelHeight+0.0895*pageSize)
     context.select_font_face(font, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
     context.set_font_size(0.054*pageSize)
     context.set_source_rgb(0, 0, 0)
     context.show_text(u'RULE {}'.format(rule))
 
+    # draw fun facts
+    if funFactsLines:
+        context.select_font_face(font, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+        context.set_font_size(0.015*pageSize)
+        context.set_source_rgb(0, 0, 0)
+        for i, l in enumerate(funFactsLines):
+            context.move_to(0.1*pageSize, 0.9*pageHeight - labelHeight + 0.14*pageSize + i*funFactLineHeight*1.5)
+            context.show_text(l)
+
     # draw rule icons (only for simple rules, would not be not legible for
     # "higher" rules)
     if currentStateWidth == 3:
         xOffset = pageWidth-0.115*pageSize
-        yOffset = 0.9*pageHeight-0.084*pageSize
+        yOffset = 0.9*pageHeight-labelHeight+0.056*pageSize
         cellSize = pageSize/78
 
         context.set_line_width(cellSize / 10)
@@ -286,7 +415,6 @@ if showLabel:
                 context.rectangle(xOffset, yOffset, cellSize, cellSize)
                 context.stroke()
                 xOffset -= cellSize * 1.25
-            #print(transistions[thing])  # 1.1 below and -2.2 in x
             if transistions[neighbors] == '1':
                 context.rectangle(xOffset+cellSize*2.5, yOffset+cellSize*1.25, cellSize, cellSize)
                 context.fill()
