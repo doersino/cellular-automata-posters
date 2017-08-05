@@ -3,8 +3,8 @@
 # Generate cellular automata posters as PDF files.
 # https://github.com/doersino/cellular-automata-posters
 #
-# License info, setup instructions and usage examples can be found as part of
-# the GitHub repository linked above.
+# License info, setup instructions, usage examples and some handy utilities can
+# be found as part of the GitHub repository linked above.
 #
 # (Inspired by a Reddit post by /u/collatz_conjecture: https://redd.it/6bg60e --
 # all credit goes to them, while any criticism (e.g. for taking their idea and
