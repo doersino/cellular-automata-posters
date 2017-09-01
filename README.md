@@ -9,7 +9,7 @@ Heavily inspired by [this Reddit post](https://www.reddit.com/r/cellular_automat
 
 ![](examples/examples.jpg)
 
-You can find the associated PDF files in the `examples/` subdirectory.
+You can find the associated PDF files in the [`examples/`](examples/) subdirectory.
 
 
 ## Setup & Usage
@@ -56,4 +56,4 @@ after which you'll find the generated PDF file in your working directory.
 * [ ] Write an equivalent script for Conway's Game of Life (possibly vertically stacked states viewed 3D-ish from the side?) and/or Langton's Ant.
 * [ ] Consider supporting continuous 1D automata: https://bitbucket.org/antonio_rt/1d-continuous-cellular-automata
 
-You're very welcome to send a pull request implementing one or more of the above (or [file an issue](https://github.com/doersino/cellular-automata-posters/issues) if you have any other ideas for improvement)!
+You're **very welcome** to send a pull request implementing one or more of the above (or [file an issue](https://github.com/doersino/cellular-automata-posters/issues) if you have any other ideas for improvement)!
