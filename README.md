@@ -16,16 +16,21 @@ You can find the associated PDF files in the [`examples/`](examples/) subdirecto
 
 ## Setup & Usage
 
-The script has been tested with Python 3 and uses the [`cairocffi` package](https://pypi.python.org/pypi/cairocffi) to draw vector shapes to PDF. That package, in turn, depends on CFFI, Cairo and other system-dependent libraries. **Take a look at the [`cairocffi` documentation](http://cairocffi.readthedocs.io/en/latest/overview.html#installing-cffi)** to get started. Further, the [`wolframalpha` package](https://pypi.python.org/pypi/wolframalpha) is used to display "fun facts" about the rules – the script contains a comment explaining how to get the Wolfram|Alpha AppID required to enable this feature.
+The script has been tested with Python 3 and uses the [`cairocffi` package](https://pypi.python.org/pypi/cairocffi) to draw vector shapes to PDF. That package, in turn, depends on CFFI, Cairo and other system-dependent libraries. You'll need to figure out how to install Cairo on your system yourself, but chances are that it's available through your package manager – if you're on macOS, know that Homebrew has it. In fact, it might already be installed and you don't have to do anything! Take a look at the [`cairocffi` documentation](http://cairocffi.readthedocs.io/en/latest/overview.html#installing-cffi) if you run into trouble.
 
-If you're on macOS, you can run the following commands to set things up – that's what worked for me, anyway:
+Further, the [`wolframalpha` package](https://pypi.python.org/pypi/wolframalpha) is used to display "fun facts" about the rules – the script contains a comment explaining how to get the Wolfram|Alpha AppID required to enable this feature. Things will still work without it, though, you'll just miss out on *some* of the fun.
+
+Assuming things have gone smoothly so far, let's proceed – I suggest using the `venv` module (which is conveniently included in your Python installation) to avoid dependency hell. **Run the following commands to get this script installed on your system:**
 
 ```bash
-$ brew install python3 pkg-config libffi cairo
-$ PKG_CONFIG_PATH=/usr/local/opt/libffi/lib/pkgconfig pip3 install cffi
-$ pip3 install cairocffi
-$ pip3 install wolframalpha
+$ git clone https://github.com/doersino/cellular-automata-posters
+$ python3 -m venv cellular-automata-posters
+$ cd cellular-automata-posters
+$ source bin/activate
+$ pip3 install -r requirements.txt
 ```
+
+(To deactivate the virtual environment, run `deactivate`.)
 
 Now **adjust the settings in `cap.py` to taste** (they're explained inline, I encourage you to play around with them). Then run the script using
 

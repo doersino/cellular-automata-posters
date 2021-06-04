@@ -1,0 +1,7 @@
+cairocffi==1.2.0
+cffi==1.14.5
+jaraco.context==4.0.0
+more-itertools==8.8.0
+pycparser==2.20
+wolframalpha==5.0.0
+xmltodict==0.12.0

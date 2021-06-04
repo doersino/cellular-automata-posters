@@ -1,2 +1,11 @@
 rule*.pdf
 examples.html
+
+# venv stuff
+bin
+include
+lib
+pyvenv.cfg
+lib64
+pip-selfcheck.json
+__pycache__
