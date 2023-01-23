@@ -4,7 +4,7 @@ Simple Python script that **generates cellular automata posters as PDF** files.
 
 Heavily inspired by [this Reddit post](https://www.reddit.com/r/cellular_automata/comments/6bg60e/2d_cellular_automata_posters/) – **all credit goes to /u/collatz_conjecture**, while any criticism is to be [directed at me](https://github.com/doersino).
 
-**Check out [@sundryautomata](https://twitter.com/sundryautomata), a Twitter bot based on this generator.**
+**Check out [@sundryautomata@botsin.space](https://botsin.space/@sundryautomata), a Mastodon bot based on this generator.**
 
 
 ## Examples
